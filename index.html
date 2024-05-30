@@ -91,6 +91,17 @@
             margin-bottom: 20px;
         }
 
+        .popup-lost-message {
+            font-size: 2rem;
+            color: red;
+            margin-bottom: 20px;
+        }
+
+        .popup-lost-reason {
+            font-size: 1.5rem;
+            color: red;
+        }
+
         .popup button {
             padding: 10px 20px;
             font-size: 1rem;
@@ -105,15 +116,29 @@
         <div class="info">
             <div id="moves">الحركات: 0</div>
             <div id="timer">الوقت: 0 ثانية</div>
+            <div id="difficulty-level">
+                اختر مستوى الصعوبة:
+                <label><input type="radio" name="difficulty" value="سهل"> سهل</label>
+                <label><input type="radio" name="difficulty" value="متوسط"> متوسط</label>
+                <label><input type="radio" name="difficulty" value="صعب"> صعب</label>
+                <label><input type="radio" name="difficulty" value="للأطفال"> للأطفال</label>
+            </div>
         </div>
         <div class="grid" id="grid"></div>
         <div id="message"></div>
         <button id="restart-btn">إعادة بدء اللعبة</button>
     </div>
 
-    <!-- النافذة المنبثقة -->
-    <div class="popup" id="popup">
+    <!-- النافذة المنبثقة للفوز -->
+    <div class="popup" id="popup-win">
         <div class="popup-message">لقد فزت</div>
+        <button onclick="resetGame()">إعادة بدء اللعبة</button>
+    </div>
+
+    <!-- النافذة المنبثقة للخسارة -->
+    <div class="popup" id="popup-lose">
+        <div class="popup-lost-message">لقد خسرت</div>
+        <div class="popup-lost-reason" id="lose-reason"></div>
         <button onclick="resetGame()">إعادة بدء اللعبة</button>
     </div>
 
@@ -130,8 +155,10 @@
         let timerElement = document.getElementById('timer');
         let messageElement = document.getElementById('message');
         let restartBtn = document.getElementById('restart-btn');
-        let popup = document.getElementById('popup');
-
+        let popupWin = document.getElementById('popup-win');
+        let popupLose = document.getElementById('popup-lose');
+        let loseReason = document.getElementById('lose-reason');
+        let difficultyRadios = document.getElementsByName('difficulty');
         // متغيرات اللعبة
         let cards = [];
         let flippedCards = [];
@@ -139,6 +166,9 @@
         let moves = 0;
         let timer;
         let seconds = 0;
+        let maxSeconds = 120; // متغير الوقت الأقصى
+        let maxMoves = 60; // متغير الحركات الأقصى
+        let gameEnded = false; // متغير لتتبع حالة نهاية اللعبة
 
         // وظيفة لإنشاء لوحة اللعبة
         function createBoard() {
@@ -171,7 +201,7 @@
 
         // وظيفة لتقليب البطاقة
         function flipCard() {
-            if (flippedCards.length < 2 && !this.classList.contains('flipped')) {
+            if (!gameEnded && flippedCards.length < 2 && !this.classList.contains('flipped')) {
                 this.classList.add('flipped');
                 this.textContent = this.dataset.value;
                 flippedCards.push(this);
@@ -192,9 +222,10 @@
                 matchedCards += 2;
                 flippedCards = [];
                 if (matchedCards === cardsArray.length) {
+                    gameEnded = true; // تعيين حالة نهاية اللعبة
                     clearInterval(timer);
                     messageElement.textContent = '';
-                    popup.classList.add('active'); // نافذة المنبثقة عند الفوز
+                    popupWin.classList.add('active'); // إظهار نافذة الفوز
                 }
             } else {
                 setTimeout(() => {
@@ -212,11 +243,21 @@
             timer = setInterval(() => {
                 seconds++;
                 timerElement.textContent = `الوقت: ${seconds} ثانية`;
+
+                // إنهاء اللعبة إذا تجاوز الوقت المحدد
+                if (seconds >= maxSeconds) {
+                    gameEnded = true; // تعيين حالة نهاية اللعبة
+                    clearInterval(timer);
+                    messageElement.textContent = '';
+                    loseReason.textContent = 'انتهى الوقت';
+                    popupLose.classList.add('active'); // إظهار نافذة الخسارة
+                }
             }, 1000);
         }
 
         // وظيفة لإعادة تعيين اللعبة
         function resetGame() {
+            gameEnded = false; // إعادة تعيين حالة نهاية اللعبة
             clearInterval(timer);
             seconds = 0;
             moves = 0;
@@ -225,14 +266,40 @@
             cards = [];
             movesElement.textContent = 'الحركات: 0';
             timerElement.textContent = 'الوقت: 0 ثانية';
+            timerElement.style.color = 'black'; // إعادة لون الوقت إلى الأسود
             messageElement.textContent = '';
-            popup.classList.remove('active'); // إخفاء النافذة المنبثقة
+            popupWin.classList.remove('active'); // إخفاء نافذة الفوز
+            popupLose.classList.remove('active'); // إخفاء نافذة الخسارة
             createBoard();
             startTimer();
         }
 
-        // إعادة تشغيل اللعبة عند النقر على زر إعادة البدء
-        restartBtn.addEventListener('click', resetGame);
+        // تحديد متغيرات الوقت والحركات بناءً على مستوى الصعوبة المختار
+        for (let i = 0; i < difficultyRadios.length; i++) {
+            difficultyRadios[i].addEventListener('change', function() {
+                let selectedDifficulty = this.value;
+                if (selectedDifficulty === 'سهل') {
+                    maxSeconds = 120;
+                    maxMoves = 60;
+                } else if (selectedDifficulty === 'متوسط') {
+                    maxSeconds = 100;
+                    maxMoves = 50;
+                } else if (selectedDifficulty === 'صعب') {
+                    maxSeconds = 60;
+                    maxMoves = 30;
+                } else if (selectedDifficulty === 'للأطفال') {
+                    maxSeconds = Infinity;
+                    maxMoves = Infinity;
+                }
+
+                // تحديث العدادات
+                timerElement.textContent = `الوقت: ${maxSeconds} ثانية`;
+                movesElement.textContent = `الحركات: ${maxMoves}`;
+
+                // إعادة تعيين اللعبة
+                resetGame();
+            });
+        }
 
         // إنشاء لوحة اللعبة وبدء العد الزمني عند تحميل الصفحة
         createBoard();
