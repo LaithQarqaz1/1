@@ -359,6 +359,9 @@
             });
         }
 
+        // إضافة مستمع الحدث لزر إعادة البدء
+        restartBtn.addEventListener('click', resetGame);
+
         // إنشاء لوحة اللعبة وبدء العد الزمني عند تحميل الصفحة
         createBoard();
         startTimer();
