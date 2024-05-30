@@ -107,6 +107,39 @@
             font-size: 1rem;
             cursor: pointer;
         }
+
+        .difficulty-label {
+            display: inline-block;
+            padding: 10px 20px;
+            border: 2px solid #1e90ff;
+            border-radius: 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .difficulty-label input[type="radio"] {
+            display: none;
+        }
+
+        .difficulty-label span {
+            margin-left: 8px;
+        }
+
+        .difficulty-label input[type="radio"]:checked + span {
+            background-color: #1e90ff;
+            color: white;
+            border-radius: 10px;
+            padding: 5px 10px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+        }
+
+        .row:first-child {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -114,14 +147,18 @@
         <h1>لعبة الذاكرة</h1>
         <div>تطوير: ليث قرقز</div>
         <div class="info">
-            <div id="moves">الحركات: 0</div>
-            <div id="timer">الوقت: 0 ثانية</div>
+            <div id="moves">الحركات: 50</div>
+            <div id="timer">الوقت: 100 ثانية</div>
             <div id="difficulty-level">
                 اختر مستوى الصعوبة:
-                <label><input type="radio" name="difficulty" value="سهل"> سهل</label>
-                <label><input type="radio" name="difficulty" value="متوسط"> متوسط</label>
-                <label><input type="radio" name="difficulty" value="صعب"> صعب</label>
-                <label><input type="radio" name="difficulty" value="للأطفال"> للأطفال</label>
+                <div class="row">
+                    <label class="difficulty-label"><input type="radio" name="difficulty" value="سهل"><span>سهل</span></label>
+                    <label class="difficulty-label"><input type="radio" name="difficulty" value="للأطفال"><span>للأطفال</span></label>
+                </div>
+                <div class="row">
+                    <label class="difficulty-label"><input type="radio" name="difficulty" value="صعب"><span>صعب</span></label>
+                    <label class="difficulty-label"><input type="radio" name="difficulty" value="متوسط" checked><span>متوسط</span></label>
+                </div>
             </div>
         </div>
         <div class="grid" id="grid"></div>
@@ -159,6 +196,7 @@
         let popupLose = document.getElementById('popup-lose');
         let loseReason = document.getElementById('lose-reason');
         let difficultyRadios = document.getElementsByName('difficulty');
+
         // متغيرات اللعبة
         let cards = [];
         let flippedCards = [];
@@ -166,8 +204,8 @@
         let moves = 0;
         let timer;
         let seconds = 0;
-        let maxSeconds = 120; // متغير الوقت الأقصى
-        let maxMoves = 60; // متغير الحركات الأقصى
+        let maxSeconds = 100; // الوقت الأقصى لمستوى الصعوبة الافتراضي (متوسط)
+        let maxMoves = 50; // الحركات القصوى لمستوى الصعوبة الافتراضي (متوسط)
         let gameEnded = false; // متغير لتتبع حالة نهاية اللعبة
 
         // وظيفة لإنشاء لوحة اللعبة
@@ -214,7 +252,7 @@
         // وظيفة للتحقق من تطابق البطاقات المقلوبة
         function checkForMatch() {
             moves++;
-            movesElement.textContent = `الحركات: ${moves}`;
+            movesElement.textContent = `الحركات: ${maxMoves - moves}`;
             let [card1, card2] = flippedCards;
             if (card1.dataset.value === card2.dataset.value) {
                 card1.classList.add('matched');
@@ -236,13 +274,27 @@
                     flippedCards = [];
                 }, 1000);
             }
+
+            // إنهاء اللعبة إذا تجاوز عدد الحركات المحدد
+            if (moves >= maxMoves) {
+                gameEnded = true; // تعيين حالة نهاية اللعبة
+                clearInterval(timer);
+                messageElement.textContent = '';
+                loseReason.textContent = 'تجاوزت الحد الأقصى للحركات';
+                popupLose.classList.add('active'); // إظهار نافذة الخسارة
+            }
+
+            // تغيير لون الحركات إلى الأحمر عند الوصول إلى 33% أو أقل من الحركات المتبقية
+            if ((maxMoves - moves) <= maxMoves * 0.34) {
+                movesElement.style.color = 'red';
+            }
         }
 
         // وظيفة لبدء العد الزمني
         function startTimer() {
             timer = setInterval(() => {
                 seconds++;
-                timerElement.textContent = `الوقت: ${seconds} ثانية`;
+                timerElement.textContent = `الوقت: ${maxSeconds - seconds} ثانية`;
 
                 // إنهاء اللعبة إذا تجاوز الوقت المحدد
                 if (seconds >= maxSeconds) {
@@ -251,6 +303,11 @@
                     messageElement.textContent = '';
                     loseReason.textContent = 'انتهى الوقت';
                     popupLose.classList.add('active'); // إظهار نافذة الخسارة
+                }
+
+                // تغيير لون الوقت إلى الأحمر عند اقتراب النهاية
+                if (seconds >= maxSeconds * 0.75) {
+                    timerElement.style.color = 'red';
                 }
             }, 1000);
         }
@@ -264,9 +321,10 @@
             matchedCards = 0;
             flippedCards = [];
             cards = [];
-            movesElement.textContent = 'الحركات: 0';
-            timerElement.textContent = 'الوقت: 0 ثانية';
+            movesElement.textContent = `الحركات: ${maxMoves}`;
+            timerElement.textContent = `الوقت: ${maxSeconds} ثانية`;
             timerElement.style.color = 'black'; // إعادة لون الوقت إلى الأسود
+            movesElement.style.color = 'black'; // إعادة لون الحركات إلى الأسود
             messageElement.textContent = '';
             popupWin.classList.remove('active'); // إخفاء نافذة الفوز
             popupLose.classList.remove('active'); // إخفاء نافذة الخسارة
