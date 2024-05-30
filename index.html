@@ -29,20 +29,20 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, 100px);
+            grid-template-columns: repeat(4, 70px); /* تعديل حجم البطاقة */
             gap: 10px;
             justify-content: center;
         }
 
         .card {
-            width: 100px;
-            height: 100px;
+            width: 70px; /* تعديل حجم البطاقة */
+            height: 70px; /* تعديل حجم البطاقة */
             background-color: #1e90ff;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2rem;
+            font-size: 1.5rem; /* تعديل حجم النص داخل البطاقة */
             color: white;
             border-radius: 10px;
             user-select: none;
@@ -194,8 +194,7 @@
                 if (matchedCards === cardsArray.length) {
                     clearInterval(timer);
                     messageElement.textContent = '';
-                    popup.classList.add('active');         // نافذة المنبثقة عند الفوز
-                    popup.classList.add('active');
+                    popup.classList.add('active'); // نافذة المنبثقة عند الفوز
                 }
             } else {
                 setTimeout(() => {
@@ -241,4 +240,3 @@
     </script>
 </body>
 </html>
-
