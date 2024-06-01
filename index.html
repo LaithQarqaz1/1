@@ -29,29 +29,37 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, 70px); /* تعديل حجم البطاقة */
+            grid-template-columns: repeat(4, 70px);
             gap: 10px;
             justify-content: center;
         }
 
         .card {
-            width: 70px; /* تعديل حجم البطاقة */
-            height: 70px; /* تعديل حجم البطاقة */
+            width: 70px;
+            height: 70px;
             background-color: #1e90ff;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem; /* تعديل حجم النص داخل البطاقة */
+            font-size: 1.5rem;
             color: white;
             border-radius: 10px;
             user-select: none;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
         }
 
         .card.flipped, .card.matched {
             background-color: #fff;
             color: #000;
             cursor: default;
+            animation: flip 0.6s forwards;
+        }
+
+        .card.matched {
+            background-color: #008000; /* تغيير لون الخلفية إلى اللون الأخضر عند التطابق */
+            color: #fff;
         }
 
         #message {
@@ -67,7 +75,6 @@
             cursor: pointer;
         }
 
-        /* تنسيقات النافذة المنبثقة */
         .popup {
             display: none;
             position: fixed;
@@ -115,6 +122,8 @@
             border-radius: 10px;
             margin: 5px;
             cursor: pointer;
+            text-align: center; /* محاذاة النص إلى المنتصف */
+            width: 100px; /* تحديد عرض ثابت لكل مستوى */
         }
 
         .difficulty-label input[type="radio"] {
@@ -140,6 +149,31 @@
         .row:first-child {
             margin-bottom: 10px;
         }
+
+        @keyframes shuffle {
+            0% {
+                transform: rotateY(0);
+            }
+            50% {
+                transform: rotateY(90deg);
+            }
+            100% {
+                transform: rotateY(0);
+            }
+        }
+
+        @keyframes flip {
+            0% {
+                transform: rotateY(0);
+            }
+            100% {
+                transform: rotateY(180deg);
+            }
+        }
+
+        .shuffling .card {
+            animation: shuffle 1s ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -153,7 +187,7 @@
                 اختر مستوى الصعوبة:
                 <div class="row">
                     <label class="difficulty-label"><input type="radio" name="difficulty" value="سهل"><span>سهل</span></label>
-                    <label class="difficulty-label"><input type="radio" name="difficulty" value="للأطفال"><span>للأطفال</span></label>
+                    <label class="difficulty-label"><input type="radio" name="difficulty" value="وضع الغش"><span>للأطفال</span></label>
                 </div>
                 <div class="row">
                     <label class="difficulty-label"><input type="radio" name="difficulty" value="صعب"><span>صعب</span></label>
@@ -166,13 +200,11 @@
         <button id="restart-btn">إعادة بدء اللعبة</button>
     </div>
 
-    <!-- النافذة المنبثقة للفوز -->
     <div class="popup" id="popup-win">
         <div class="popup-message">لقد فزت</div>
         <button onclick="resetGame()">إعادة بدء اللعبة</button>
     </div>
 
-    <!-- النافذة المنبثقة للخسارة -->
     <div class="popup" id="popup-lose">
         <div class="popup-lost-message">لقد خسرت</div>
         <div class="popup-lost-reason" id="lose-reason"></div>
@@ -207,6 +239,7 @@
         let maxSeconds = 100; // الوقت الأقصى لمستوى الصعوبة الافتراضي (متوسط)
         let maxMoves = 50; // الحركات القصوى لمستوى الصعوبة الافتراضي (متوسط)
         let gameEnded = false; // متغير لتتبع حالة نهاية اللعبة
+        let firstFlip = false; // متغير لتتبع أول قلب للبطاقة
 
         // وظيفة لإنشاء لوحة اللعبة
         function createBoard() {
@@ -220,6 +253,11 @@
                 grid.appendChild(card);
                 cards.push(card);
             });
+            // إضافة الرسوم المتحركة للخلط
+            grid.classList.add('shuffling');
+            setTimeout(() => {
+                grid.classList.remove('shuffling');
+            }, 1000);
         }
 
         // وظيفة لتبديل ترتيب البطاقات بشكل عشوائي
@@ -243,6 +281,10 @@
                 this.classList.add('flipped');
                 this.textContent = this.dataset.value;
                 flippedCards.push(this);
+                if (!firstFlip) {
+                    firstFlip = true;
+                    startTimer(); // بدء المؤقت عند أول قلب للبطاقة
+                }
                 if (flippedCards.length === 2) {
                     checkForMatch();
                 }
@@ -279,92 +321,84 @@
             if (moves >= maxMoves) {
                 gameEnded = true; // تعيين حالة نهاية اللعبة
                 clearInterval(timer);
-                messageElement.textContent = '';
-                loseReason.textContent = 'تجاوزت الحد الأقصى للحركات';
+                loseReason.textContent = 'لقد تجاوزت الحد الأقصى لعدد الحركات.';
                 popupLose.classList.add('active'); // إظهار نافذة الخسارة
-            }
-
-            // تغيير لون الحركات إلى الأحمر عند الوصول إلى 33% أو أقل من الحركات المتبقية
-            if ((maxMoves - moves) <= maxMoves * 0.34) {
-                movesElement.style.color = 'red';
             }
         }
 
-        // وظيفة لبدء العد الزمني
+        // وظيفة لبدء المؤقت
         function startTimer() {
+            seconds = maxSeconds; // تعيين الوقت الأقصى بناءً على مستوى الصعوبة
+            timerElement.textContent = `الوقت: ${seconds} ثانية`;
             timer = setInterval(() => {
-                seconds++;
-                timerElement.textContent = `الوقت: ${maxSeconds - seconds} ثانية`;
-
-                // إنهاء اللعبة إذا تجاوز الوقت المحدد
-                if (seconds >= maxSeconds) {
-                    gameEnded = true; // تعيين حالة نهاية اللعبة
+                seconds--;
+                timerElement.textContent = `الوقت: ${seconds} ثانية`;
+                if (seconds <= 0) {
                     clearInterval(timer);
-                    messageElement.textContent = '';
-                    loseReason.textContent = 'انتهى الوقت';
+                    gameEnded = true; // تعيين حالة نهاية اللعبة
+                    loseReason.textContent = 'انتهى الوقت.';
                     popupLose.classList.add('active'); // إظهار نافذة الخسارة
-                }
-
-                // تغيير لون الوقت إلى الأحمر عند اقتراب النهاية
-                if (seconds >= maxSeconds * 0.75) {
-                    timerElement.style.color = 'red';
                 }
             }, 1000);
         }
 
-        // وظيفة لإعادة تعيين اللعبة
-        function resetGame() {
-            gameEnded = false; // إعادة تعيين حالة نهاية اللعبة
-            clearInterval(timer);
-            seconds = 0;
-            moves = 0;
-            matchedCards = 0;
-            flippedCards = [];
-            cards = [];
+// وظيفة لإعادة ضبط اللعبة
+function resetGame() {
+    gameEnded = false;
+    matchedCards = 0;
+    moves = 0;
+    firstFlip = false;
+    seconds = maxSeconds; // إعادة تعيين الوقت
+    movesElement.textContent = `الحركات: ${maxMoves}`;
+    timerElement.textContent = `الوقت: ${seconds} ثانية`; // تحديث واجهة المستخدم بالوقت الصحيح
+    clearInterval(timer);
+    popupWin.classList.remove('active');
+    popupLose.classList.remove('active');
+    messageElement.textContent = '';
+    createBoard();
+}
+
+        // تعيين مستوى الصعوبة بناءً على اختيار المستخدم
+        function setDifficulty() {
+            for (let radio of difficultyRadios) {
+                if (radio.checked) {
+                    switch (radio.value) {
+                        case 'سهل':
+                            maxSeconds = 80;
+                            maxMoves = 40;
+                            break;
+                        case 'وضع الغش':
+                            maxSeconds = 1000;
+                            maxMoves = 100;
+                            break;
+                        case 'صعب':
+                            maxSeconds = 40;
+                            maxMoves = 25;
+                            break;
+                        case 'متوسط':
+                        default:
+                            maxSeconds = 60;
+                            maxMoves = 30;
+                            break;
+                    }
+                }
+            }
+            // تحديث واجهة المستخدم
             movesElement.textContent = `الحركات: ${maxMoves}`;
             timerElement.textContent = `الوقت: ${maxSeconds} ثانية`;
-            timerElement.style.color = 'black'; // إعادة لون الوقت إلى الأسود
-            movesElement.style.color = 'black'; // إعادة لون الحركات إلى الأسود
-            messageElement.textContent = '';
-            popupWin.classList.remove('active'); // إخفاء نافذة الفوز
-            popupLose.classList.remove('active'); // إخفاء نافذة الخسارة
-            createBoard();
-            startTimer();
+            resetGame();
         }
 
-        // تحديد متغيرات الوقت والحركات بناءً على مستوى الصعوبة المختار
-        for (let i = 0; i < difficultyRadios.length; i++) {
-            difficultyRadios[i].addEventListener('change', function() {
-                let selectedDifficulty = this.value;
-                if (selectedDifficulty === 'سهل') {
-                    maxSeconds = 120;
-                    maxMoves = 60;
-                } else if (selectedDifficulty === 'متوسط') {
-                    maxSeconds = 100;
-                    maxMoves = 50;
-                } else if (selectedDifficulty === 'صعب') {
-                    maxSeconds = 60;
-                    maxMoves = 30;
-                } else if (selectedDifficulty === 'للأطفال') {
-                    maxSeconds = Infinity;
-                    maxMoves = Infinity;
-                }
-
-                // تحديث العدادات
-                timerElement.textContent = `الوقت: ${maxSeconds} ثانية`;
-                movesElement.textContent = `الحركات: ${maxMoves}`;
-
-                // إعادة تعيين اللعبة
-                resetGame();
-            });
-        }
-
-        // إضافة مستمع الحدث لزر إعادة البدء
+        // حدث إعادة بدء اللعبة
         restartBtn.addEventListener('click', resetGame);
 
-        // إنشاء لوحة اللعبة وبدء العد الزمني عند تحميل الصفحة
-        createBoard();
-        startTimer();
+        // تحديث مستوى الصعوبة عند تغيير الاختيار
+        for (let radio of difficultyRadios) {
+            radio.addEventListener('change', setDifficulty);
+        }
+
+        // بدء اللعبة
+        setDifficulty(); // تعيين مستوى الصعوبة الافتراضي وبدء اللعبة
     </script>
 </body>
 </html>
