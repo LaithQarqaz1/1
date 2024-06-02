@@ -59,7 +59,7 @@
         .card.flipped, .card.matched {
             background-color: transparent;
             cursor: default;
-            animation: flip 0.6s forwards;
+            transform: rotateY(180deg);
         }
 
         .card.matched {
@@ -143,29 +143,17 @@
             margin-bottom: 10px;
         }
 
-        @keyframes shuffle {
+        @keyframes entrance {
             0% {
-                transform: rotateY(0);
-            }
-            50% {
-                transform: rotateY(90deg);
+                transform: rotateY(-180deg);
             }
             100% {
                 transform: rotateY(0);
             }
         }
 
-        @keyframes flip {
-            0% {
-                transform: rotateY(0);
-            }
-            100% {
-                transform: rotateY(180deg);
-            }
-        }
-
-        .shuffling .card {
-            animation: shuffle 1s ease-in-out;
+        .entering .card {
+            animation: entrance 0.6s ease forwards;
         }
 
         @media (max-width: 600px) {
@@ -195,7 +183,7 @@
 </head>
 <body>
 
- <div class="game-container">
+    <div class="game-container">
         <h1>لعبة الذاكرة</h1>
         <div>تطوير: ليث قرقز</div>
         <div class="info">
@@ -252,17 +240,18 @@
         const loseReasonElement = document.getElementById('lose-reason');
         const difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
 
-        let moves, time, interval, selectedCards, matchedPairs, shuffling, firstFlip;
+        let moves = 30;
+        let time = 45;
+        let matchedPairs = 0;
+        let selectedCards = [];
+        let interval;
+        let firstFlip = false;
 
         function init() {
-            firstFlip = false;
             setDifficulty();
-            setupCards();
+            setupCards(true);
             updateMoves();
             updateTimer();
-            messageElement.textContent = '';
-            popupWin.classList.remove('active');
-            popupLose.classList.remove('active');
         }
 
         function setDifficulty() {
@@ -287,7 +276,7 @@
             }
         }
 
-        function setupCards() {
+        function setupCards(animate = false) {
             grid.innerHTML = '';
             selectedCards = [];
             matchedPairs = 0;
@@ -301,6 +290,13 @@
                 card.dataset.emoji = emoji;
                 card.addEventListener('click', onCardClick);
                 grid.appendChild(card);
+            }
+
+            if (animate) {
+                grid.classList.add('entering');
+                setTimeout(() => {
+                    grid.classList.remove('entering');
+                }, 1000);
             }
         }
 
@@ -387,10 +383,10 @@
             }, 1000);
         }
 
-        function resetGame() {
+        function resetGame(animate = false) {
             firstFlip = false;
             setDifficulty();
-            setupCards();
+            setupCards(animate);
             updateMoves();
             updateTimer();
             messageElement.textContent = '';
@@ -399,10 +395,10 @@
         }
 
         difficultyRadios.forEach(radio => {
-            radio.addEventListener('change', resetGame);
+            radio.addEventListener('change', () => resetGame(true));
         });
 
-        restartBtn.addEventListener('click', resetGame);
+        restartBtn.addEventListener('click', () => resetGame(true));
 
         init();
     </script>
