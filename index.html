@@ -103,10 +103,20 @@
             color: red;
         }
 
-        #restart-btn, .popup button {
+        #restart-btn, .popup button, #toggle-theme-btn {
             margin-top: 20px;
             padding: 15px 30px;
             font-size: 1.2rem;
+            background-color: #1e90ff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #restart-btn:hover, .popup button:hover, #toggle-theme-btn:hover {
+            background-color: #1c86ee;
         }
 
         .difficulty-label {
@@ -175,10 +185,36 @@
                 padding: 5px 10px;
             }
 
-            #restart-btn, .popup button {
+            #restart-btn, .popup button, #toggle-theme-btn {
                 padding: 10px 20px;
                 font-size: 1rem;
             }
+        }
+
+        body.light-theme {
+            background-color: white;
+            color: black;
+        }
+
+        body.light-theme .grid {
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        body.light-theme .card {
+            background-color: #007BFF; /* لون أزرق داكن */
+            color: black;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        body.light-theme .card.flipped, 
+        body.light-theme .card.matched {
+            background-color: transparent;
+            color: black;
+        }
+
+        body.light-theme .card.matched {
+            background-color: green; /* لون أخضر عند التطابق */
         }
     </style>
 </head>
@@ -205,6 +241,7 @@
         <div class="grid" id="grid"></div>
         <div id="message"></div>
         <button id="restart-btn">إعادة بدء اللعبة</button>
+        <button id="toggle-theme-btn">تبديل الشكل</button>
     </div>
 
     <div class="popup" id="popup-win">
@@ -240,6 +277,7 @@
         const popupLose = document.getElementById('popup-lose');
         const loseReasonElement = document.getElementById('lose-reason');
         const difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
+        const toggleThemeBtn = document.getElementById('toggle-theme-btn');
 
         let moves = 30;
         let time = 45;
@@ -400,6 +438,10 @@
         });
 
         restartBtn.addEventListener('click', () => resetGame(true));
+        
+        toggleThemeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+        });
 
         init();
     </script>
