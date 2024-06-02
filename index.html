@@ -352,7 +352,7 @@
             if (moves === 0 && matchedPairs < 8) {
                 clearInterval(interval);
                 setTimeout(() => {
-                    loseReasonElement.textContent = 'لقد استنفدت جميع الحركات!';
+                    loseReasonElement.textContent = 'لم يتبقى لديك حركات';
                     popupLose.classList.add('active');
                 }, 500);
             }
@@ -378,7 +378,7 @@
 
                 if (time === 0) {
                     clearInterval(interval);
-                    loseReasonElement.textContent = 'لقد نفد الوقت!';
+                    loseReasonElement.textContent = 'انتهى الوقت';
                     popupLose.classList.add('active');
                 }
             }, 1000);
