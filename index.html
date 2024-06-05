@@ -31,7 +31,6 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, 70px);
             gap: 10px;
             justify-content: center;
             background-color: black;
@@ -40,15 +39,23 @@
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
+        .grid-4x4 {
+            grid-template-columns: repeat(4, 50px);
+        }
+
+        .grid-6x6 {
+            grid-template-columns: repeat(6, 50px);
+        }
+
         .card {
-            width: 70px;
-            height: 70px;
+            width: 50px;
+            height: 50px;
             background-color: gold;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: white;
             border-radius: 10px;
             user-select: none;
@@ -103,7 +110,7 @@
             color: red;
         }
 
-        #restart-btn, .popup button, #toggle-theme-btn {
+        #restart-btn, .popup button, #toggle-theme-btn, #toggle-grid-btn {
             margin-top: 20px;
             padding: 15px 30px;
             font-size: 1.2rem;
@@ -115,7 +122,7 @@
             transition: background-color 0.3s;
         }
 
-        #restart-btn:hover, .popup button:hover, #toggle-theme-btn:hover {
+        #restart-btn:hover, .popup button:hover, #toggle-theme-btn:hover, #toggle-grid-btn:hover {
             background-color: #1c86ee;
         }
 
@@ -169,15 +176,22 @@
 
         @media (max-width: 600px) {
             .grid {
-                grid-template-columns: repeat(4, 50px);
                 gap: 5px;
                 padding: 5px;
             }
 
+            .grid-4x4 {
+                grid-template-columns: repeat(4, 30px);
+            }
+
+            .grid-6x6 {
+                grid-template-columns: repeat(6, 30px);
+            }
+
             .card {
-                width: 50px;
-                height: 50px;
-                font-size: 1rem;
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
             }
 
             .difficulty-label {
@@ -185,7 +199,7 @@
                 padding: 5px 10px;
             }
 
-            #restart-btn, .popup button, #toggle-theme-btn {
+            #restart-btn, .popup button, #toggle-theme-btn, #toggle-grid-btn {
                 padding: 10px 20px;
                 font-size: 1rem;
             }
@@ -203,7 +217,7 @@
 
         body.light-theme .card {
             background-color: #007BFF; /* لون أزرق داكن */
-            color: black;
+            color: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         }
 
@@ -215,6 +229,10 @@
 
         body.light-theme .card.matched {
             background-color: green; /* لون أخضر عند التطابق */
+        }
+
+        body.light-theme .info {
+            color: black;
         }
     </style>
 </head>
@@ -238,10 +256,11 @@
                 </div>
             </div>
         </div>
-        <div class="grid" id="grid"></div>
+        <div class="grid grid-6x6" id="grid"></div>
         <div id="message"></div>
         <button id="restart-btn">إعادة بدء اللعبة</button>
         <button id="toggle-theme-btn">تبديل الشكل</button>
+        <button id="toggle-grid-btn">تبديل الشبكة</button>
     </div>
 
     <div class="popup" id="popup-win">
@@ -258,192 +277,203 @@
         const allEmojis = [
             '🍎', '🍌', '🍉', '🍋', '🍇', '🥭', '🍊', '🥥',
             '🍍', '🍑', '🍒', '🍓', '🥝', '🍅', '🌽', '🍆',
-            '🍈', '🍄', '🥑', '🥕', '🌶️', '🍉', '🍋', '🍇',
-            '🍌', '🍏', '🍐', '🍑', '🍒', '🍓', '🥥', '🥭',
-            '🧁', '🍰', '🍫', '🍬', '🍭', '🍮', '🍯', '🍵',
-            '🍪', '🍩', '🥨', '🍞', '🥐', '🧀', '🥩', '🍗',
-            '🍖', '🌭', '🍔', '🍟', '🍕', '🥪', '🥗', '🍝',
-            '🌮', '🌯', '🥙', '🍤', '🍣', '🍛', '🍚', '🍜',
-            '🍲', '🍥', '🍡', '🍢', '🍧', '🍨', '🍦', '🥧',
-            '🍠', '🍯', '🥜', '🍣', '🍤', '🍢', '🍡', '🍧'
+            '🍈', '🍄', '🥑', '🥕', '🌶️', '🍏', '🍐', '🧁',
+            '🍰', '🍫', '🍬', '🍭', '🍮', '🍵', '🍪', '🍩',
+            '🥜', '🍯', '🥯', '🍿', '🥓', '🌭', '🍔', '🍟',
+            '🍕', '🍖', '🍗', '🍤', '🍣', '🍥', '🍙', '🍚',
+            '🍛', '🍜', '🍝', '🍠', '🍢', '🍣', '🍦', '🍧'
         ];
 
-        const grid = document.getElementById('grid');
+        let gridSize = 6; // تغيير حجم الشبكة إلى 6x6
+        let emojis = [];
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+        let matches = 0;
+        let moves = 0;
+        let timer;
+        let timeLeft = 100; // تعديل الوقت الافتراضي
+        let maxMoves = 75; // تعديل عدد الحركات الافتراضي
+        let difficulty = "متوسط"; // تحديد المستوى الافتراضي
+        let gameStarted = false; // إضافة علم للتحقق إذا ما بدأت اللعبة
+
+        const gridElement = document.getElementById('grid');
         const movesElement = document.getElementById('moves');
         const timerElement = document.getElementById('timer');
-        const messageElement = document.getElementById('message');
-        const restartBtn = document.getElementById('restart-btn');
         const popupWin = document.getElementById('popup-win');
         const popupLose = document.getElementById('popup-lose');
-        const loseReasonElement = document.getElementById('lose-reason');
-        const difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
-        const toggleThemeBtn = document.getElementById('toggle-theme-btn');
+        const loseReason = document.getElementById('lose-reason');
+        const restartButton = document.getElementById('restart-btn');
+        const themeButton = document.getElementById('toggle-theme-btn');
+        const gridButton = document.getElementById('toggle-grid-btn');
 
-        let moves = 30;
-        let time = 45;
-        let matchedPairs = 0;
-        let selectedCards = [];
-        let interval;
-        let firstFlip = false;
-
-        function init() {
-            setDifficulty();
-            setupCards(true);
-            updateMoves();
-            updateTimer();
-        }
-
-        function setDifficulty() {
-            const difficulty = document.querySelector('input[name="difficulty"]:checked').value;
-            switch (difficulty) {
-                case 'سهل':
-                    moves = 35;
-                    time = 50;
-                    break;
-                case 'متوسط':
-                    moves = 30;
-                    time = 45;
-                    break;
-                case 'صعب':
-                    moves = 25;
-                    time = 35;
-                    break;
-                case 'لا نهائي':
-                    moves = Infinity;
-                    time = Infinity;
-                    break;
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
         }
 
-        function setupCards(animate = false) {
-            grid.innerHTML = '';
-            selectedCards = [];
-            matchedPairs = 0;
+        function startGame() {
+            emojis = allEmojis.slice();
+            shuffle(emojis);
+            emojis = emojis.slice(0, (gridSize * gridSize) / 2);
+            emojis = [...emojis, ...emojis];
+            shuffle(emojis);
+            createGrid();
+            resetStats();
+            gameStarted = false; // إعادة تعيين علم بدء اللعبة
+        }
 
-            const emojis = allEmojis.sort(() => 0.5 - Math.random()).slice(0, 8);
-            const cards = [...emojis, ...emojis].sort(() => 0.5 - Math.random());
+        function createGrid() {
+            gridElement.innerHTML = '';
+            gridElement.className = `grid grid-${gridSize}x${gridSize}`;
 
-            for (const emoji of cards) {
+            emojis.forEach(emoji => {
                 const card = document.createElement('div');
                 card.classList.add('card');
                 card.dataset.emoji = emoji;
-                card.addEventListener('click', onCardClick);
-                grid.appendChild(card);
-            }
-
-            if (animate) {
-                grid.classList.add('entering');
-                setTimeout(() => {
-                    grid.classList.remove('entering');
-                }, 1000);
-            }
+                card.addEventListener('click', flipCard);
+                gridElement.appendChild(card);
+            });
         }
 
-        function onCardClick(e) {
-            const card = e.currentTarget;
+        function flipCard() {
+            if (lockBoard || this === firstCard) return;
 
-            if (card.classList.contains('flipped') || card.classList.contains('matched') || selectedCards.length >= 2) {
+            if (!gameStarted) {
+                startTimer();
+                gameStarted = true;
+            }
+
+            this.classList.add('flipped');
+            this.textContent = this.dataset.emoji;
+
+            if (!firstCard) {
+                firstCard = this;
                 return;
             }
 
-            card.classList.add('flipped');
-            card.textContent = card.dataset.emoji;
-            selectedCards.push(card);
+            secondCard = this;
+            lockBoard = true;
 
-            if (!firstFlip) {
-                firstFlip = true;
-                startTimer();
-            }
-
-            if (selectedCards.length === 2) {
-                moves--;
-                updateMoves();
-                checkForMatch();
-            }
+            checkForMatch();
         }
 
         function checkForMatch() {
-            const [card1, card2] = selectedCards;
+            let isMatch = firstCard.dataset.emoji === secondCard.dataset.emoji;
+            isMatch ? disableCards() : unflipCards();
+        }
 
-            if (card1.dataset.emoji === card2.dataset.emoji) {
-                card1.classList.add('matched');
-                card2.classList.add('matched');
-                matchedPairs++;
-                selectedCards = [];
+        function disableCards() {
+            firstCard.classList.add('matched');
+            secondCard.classList.add('matched');
 
-                if (matchedPairs === 8) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        popupWin.classList.add('active');
-                    }, 500);
-                }
-            } else {
-                setTimeout(() => {
-                    card1.classList.remove('flipped');
-                    card2.classList.remove('flipped');
-                    card1.textContent = '';
-                    card2.textContent = '';
-                    selectedCards = [];
-                }, 1000);
-            }
+            resetBoard();
+            matches++;
 
-            if (moves === 0 && matchedPairs < 8) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    loseReasonElement.textContent = 'لم يتبقى لديك حركات';
-                    popupLose.classList.add('active');
-                }, 500);
+            if (matches === emojis.length / 2) {
+                setTimeout(showWinPopup, 1000);
             }
         }
 
-        function updateMoves() {
-            movesElement.textContent = `الحركات: ${moves}`;
+        function unflipCards() {
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                firstCard.textContent = '';
+                secondCard.textContent = '';
+                resetBoard();
+            }, 1000);
         }
 
-        function updateTimer() {
-            if (time === Infinity) {
-                timerElement.textContent = `الوقت: ∞`;
-                return;
+        function resetBoard() {
+            [firstCard, secondCard, lockBoard] = [null, null, false];
+            moves++;
+            movesElement.textContent = `الحركات: ${maxMoves - moves}`;
+            if (moves >= maxMoves) {
+                setTimeout(() => showLosePopup('لقد استنفدت جميع الحركات'), 500);
             }
-            timerElement.textContent = `الوقت: ${time} ثانية`;
+        }
+
+        function resetStats() {
+            matches = 0;
+            moves = 0;
+            clearInterval(timer);
+
+            let settings = getSettingsByDifficulty(difficulty, gridSize);
+            timeLeft = settings.time;
+            maxMoves = settings.moves;
+
+            movesElement.textContent = `الحركات: ${maxMoves}`;
+            timerElement.textContent = `الوقت: ${timeLeft === Infinity ? 'لا نهائي' : timeLeft + ' ثانية'}`;
         }
 
         function startTimer() {
-            clearInterval(interval);
-            interval = setInterval(() => {
-                time--;
-                timerElement.textContent = `الوقت: ${time} ثانية`;
-
-                if (time === 0) {
-                    clearInterval(interval);
-                    loseReasonElement.textContent = 'انتهى الوقت';
-                    popupLose.classList.add('active');
+            clearInterval(timer);
+            timer = setInterval(() => {
+                if (timeLeft > 0 && timeLeft !== Infinity) {
+                    timeLeft--;
+                    timerElement.textContent = `الوقت: ${timeLeft} ثانية`;
+                    if (timeLeft <= 0) {
+                        showLosePopup('لقد نفد الوقت');
+                    }
                 }
             }, 1000);
         }
 
-        function resetGame(animate = false) {
-            firstFlip = false;
-            setDifficulty();
-            setupCards(animate);
-            updateMoves();
-            updateTimer();
-            messageElement.textContent = '';
-            popupWin.classList.remove('active');
-            popupLose.classList.remove('active');
+        function getSettingsByDifficulty(difficulty, gridSize) {
+            const settings = {
+                "4": {
+                    "سهل": { time: 150, moves: 50 },
+                    "متوسط": { time: 100, moves: 40 },
+                    "صعب": { time: 75, moves: 30 },
+                    "لا نهائي": { time: Infinity, moves: Infinity }
+                },
+                "6": {
+                    "سهل": { time: 150, moves: 100 },
+                    "متوسط": { time: 100, moves: 75 },
+                    "صعب": { time: 75, moves: 55 },
+                    "لا نهائي": { time: Infinity, moves: Infinity }
+                }
+            };
+            return settings[gridSize][difficulty];
         }
 
-        difficultyRadios.forEach(radio => {
-            radio.addEventListener('change', () => resetGame(true));
+        function showWinPopup() {
+            popupWin.classList.add('active');
+        }
+
+        function showLosePopup(reason) {
+            loseReason.textContent = reason;
+            popupLose.classList.add('active');
+        }
+
+        function resetGame() {
+            popupWin.classList.remove('active');
+            popupLose.classList.remove('active');
+            startGame();
+        }
+
+        restartButton.addEventListener('click', resetGame);
+
+        document.querySelectorAll('input[name="difficulty"]').forEach(input => {
+            input.addEventListener('change', function() {
+                difficulty = this.value;
+                resetGame();
+            });
         });
 
-        restartBtn.addEventListener('click', () => resetGame(true));
-        
-        toggleThemeBtn.addEventListener('click', () => {
+        themeButton.addEventListener('click', () => {
             document.body.classList.toggle('light-theme');
         });
 
-        init();
+        gridButton.addEventListener('click', () => {
+            gridSize = gridSize === 4 ? 6 : 4;
+            resetGame();
+        });
+
+        startGame();
     </script>
 </body>
 </html>
