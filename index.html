@@ -285,6 +285,10 @@
         <div class="popup-lost-reason" id="lose-reason"></div>
         <button onclick="resetGame()">إعادة بدء اللعبة</button>
     </div>
+
+<audio id="flip-sound" src="cardsounds.mp3"></audio>
+<audio id="match-sound" src="CorrectAnswerSoundEffect.mp3"></audio>
+
     <script>
         const allEmojis = [
             '🍎', '🍌', '🍉', '🍋', '🍇', '🥭', '🍊', '🥥',
@@ -351,44 +355,48 @@
             });
         }
 
-        function flipCard() {
-            if (lockBoard || this === firstCard) return;
+function flipCard() {
+    if (lockBoard || this === firstCard) return;
 
-            if (!gameStarted) {
-                startTimer();
-                gameStarted = true;
-            }
+    if (!gameStarted) {
+        startTimer();
+        gameStarted = true;
+    }
 
-            this.classList.add('flipped');
-            this.textContent = this.dataset.emoji;
+    this.classList.add('flipped');
+    this.textContent = this.dataset.emoji;
 
-            if (!firstCard) {
-                firstCard = this;
-                return;
-            }
+    document.getElementById('flip-sound').play();
 
-            secondCard = this;
-            lockBoard = true;
+    if (!firstCard) {
+        firstCard = this;
+        return;
+    }
 
-            checkForMatch();
-        }
+    secondCard = this;
+    lockBoard = true;
+
+    checkForMatch();
+}
 
         function checkForMatch() {
             let isMatch = firstCard.dataset.emoji === secondCard.dataset.emoji;
             isMatch ? disableCards() : unflipCards();
         }
 
-        function disableCards() {
-            firstCard.classList.add('matched');
-            secondCard.classList.add('matched');
+function disableCards() {
+    firstCard.classList.add('matched');
+    secondCard.classList.add('matched');
 
-            resetBoard();
-            matches++;
+    document.getElementById('match-sound').play(); // تشغيل صوت تطابق البطاقات
 
-            if (matches === emojis.length / 2) {
-                setTimeout(showWinPopup, 1000);
-            }
-        }
+    resetBoard();
+    matches++;
+
+    if (matches === emojis.length / 2) {
+        setTimeout(showWinPopup, 1000);
+    }
+}
 
         function unflipCards() {
             setTimeout(() => {
@@ -460,9 +468,11 @@ function getSettingsByDifficulty(difficulty, gridSize) {
     return settings[gridSize][difficulty];
 }
 
-        function showWinPopup() {
-            popupWin.classList.add('active');
-        }
+function showWinPopup() {
+    isGameActive = false;
+    clearInterval(timer);
+    popupWin.classList.add('active');
+}
 
         function showLosePopup(reason) {
             loseReason.textContent = reason;
