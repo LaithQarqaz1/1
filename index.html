@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -45,6 +46,11 @@
 
         .grid-6x6 {
             grid-template-columns: repeat(6, 60px); /* تعديل حجم البطاقات */
+        }
+
+
+        .grid-8x8 {
+            grid-template-columns: repeat(8, 60px); /* تعديل حجم البطاقات */
         }
 
         .card {
@@ -188,6 +194,12 @@
                 grid-template-columns: repeat(6, 40px); /* تعديل حجم البطاقات */
             }
 
+
+            .grid-8x8 {
+                grid-template-columns: repeat(8, 40px); /* تعديل حجم البطاقات */
+            }
+
+
             .card {
                 width: 40px; /* تعديل حجم البطاقات */
                 height: 40px; /* تعديل حجم البطاقات */
@@ -279,6 +291,7 @@
             '🍍', '🍑', '🍒', '🍓', '🥝', '🍅', '🌽', '🍆',
             '🍈', '🍄', '🥑', '🥕', '🌶️', '🍏', '🍐', '🧁',
             '🍰', '🍫', '🍬', '🍭', '🍮', '🍵', '🍪', '🍩',
+            '🍍', '🍑', '🍒', '🍓', '🥝', '🍅', '🌽', '🍩',
             '🥜', '🍯', '🥯', '🍿', '🥓', '🌭', '🍔', '🍟',
             '🍕', '🍖', '🍗', '🍤', '🍣', '🍥', '🍙', '🍚',
             '🍛', '🍜', '🍝', '🍠', '🍢', '🍣', '🍦', '🍧'
@@ -422,23 +435,30 @@
             }, 1000);
         }
 
-        function getSettingsByDifficulty(difficulty, gridSize) {
-            const settings = {
-                "4": {
-                    "سهل": { time: 60, moves: 50 },
-                    "متوسط": { time: 40, moves: 30 },
-                    "صعب": { time: 30, moves: 25 },
-                    "لا نهائي": { time: Infinity, moves: Infinity }
-                },
-                "6": {
-                    "سهل": { time: 150, moves: 100 },
-                    "متوسط": { time: 100, moves: 75 },
-                    "صعب": { time: 75, moves: 55 },
-                    "لا نهائي": { time: Infinity, moves: Infinity }
-                }
-            };
-            return settings[gridSize][difficulty];
+function getSettingsByDifficulty(difficulty, gridSize) {
+    const settings = {
+        "4": {
+            "سهل": { time: 60, moves: 50 },
+            "متوسط": { time: 40, moves: 30 },
+            "صعب": { time: 30, moves: 25 },
+            "لا نهائي": { time: Infinity, moves: Infinity }
+        },
+        "6": {
+            "سهل": { time: 150, moves: 100 },
+            "متوسط": { time: 100, moves: 75 },
+            "صعب": { time: 75, moves: 55 },
+            "لا نهائي": { time: Infinity, moves: Infinity }
+        },
+        "8": {
+            "سهل": { time: 150, moves: 100 },
+            "متوسط": { time: 100, moves: 75 },
+            "صعب": { time: 75, moves: 55 },
+            "لا نهائي": { time: Infinity, moves: Infinity }
         }
+    };
+
+    return settings[gridSize][difficulty];
+}
 
         function showWinPopup() {
             popupWin.classList.add('active');
@@ -466,12 +486,16 @@
 
         themeButton.addEventListener('click', () => {
             document.body.classList.toggle('light-theme');
-        });
-
-        gridButton.addEventListener('click', () => {
-            gridSize = gridSize === 4 ? 6 : 4;
-            resetGame();
-        });
+        });gridButton.addEventListener('click', () => {
+    if (gridSize === 4) {
+        gridSize = 6;
+    } else if (gridSize === 6) {
+        gridSize = 8;
+    } else {
+        gridSize = 4;
+    }
+    resetGame();
+});
 
         startGame();
     </script>
