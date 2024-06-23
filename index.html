@@ -7,6 +7,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لعبة الذاكرة</title>
     <style>
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes cardSizeChange {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.2);
+            }
+        }
+
         body {
             display: flex;
             justify-content: center;
@@ -16,6 +37,7 @@
             font-family: Arial, sans-serif;
             background-color: black;
             color: white;
+           animation: fadeIn 1s ease-out; /* تأثير دخول الصفحة */
         }
 
         .game-container {
@@ -52,7 +74,7 @@
         .grid-8x8 {
             grid-template-columns: repeat(8, 60px); /* تعديل حجم البطاقات */
         }
-
+        
         .card {
             width: 60px; /* تعديل حجم البطاقات */
             height: 60px; /* تعديل حجم البطاقات */
@@ -65,9 +87,9 @@
             color: white;
             border-radius: 10px;
             user-select: none;
-            transition: transform 0.6s, background-color 0.6s;
             transform-style: preserve-3d;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease; /* تأثير تدريجي لتغيير حجم البطاقة */
         }
 
         .card.flipped, .card.matched {
@@ -271,6 +293,16 @@
         body.light-theme .info {
             color: black;
         }
+        
+        .card:hover {
+            transform: scale(1.2); /* تقليص حجم البطاقة عند التحويم */
+        }
+        
+        
+        .card.flipped {
+            transform: rotateY(180deg) scale(1.2); /* تقليص حجم البطاقة عند التقليب */
+        }
+        
     </style>
 </head>
 <body>
