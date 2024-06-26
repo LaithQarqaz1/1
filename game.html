@@ -417,10 +417,9 @@
             gameStarted = false; // إعادة تعيين علم بدء اللعبة
         }
 
-document.querySelector('.arrow').addEventListener('click', () => {
-    window.location.href = 'index.html';
-});
-
+    document.querySelector('.arrow').addEventListener('click', () => {
+        window.history.back();
+    });
 
         function createGrid() {
             gridElement.innerHTML = '';
