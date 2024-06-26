@@ -42,11 +42,28 @@
 
         .game-container {
             text-align: center;
+        }h1 {
+    position: relative; /* إضافة خاصية position */
+    display: inline-block; /* جعل العنصر h1 يحمل خصائص inline-block */
+}
+
+.arrow {
+    font-size: 1.5rem;
+    position: absolute; /* جعل السهم في وضع مطلق */
+    top: 50%; /* محاذاة السهم عموديًا */
+    left: -80px; /* إزاحة السهم أفقيًا */
+    transform: translateY(-50%); /* جعل السهم في منتصف العنوان عموديًا */
+    cursor: pointer;
+}
+
+.arrow:hover {
+    color: #1e90ff;
+}
+
+        .arrow:hover {
+            color: #1e90ff;
         }
 
-        h1 {
-            margin-bottom: 20px;
-        }
 
         .info {
             margin-bottom: 20px;
@@ -309,7 +326,7 @@
 <body>
 
     <div class="game-container">
-        <h1>لعبة الذاكرة</h1>
+<h1>لعبة الذاكرة <span class="arrow">🔙</span></h1>
         <div>تطوير: ليث قرقز</div>
         <div class="info">
             <div id="moves">الحركات: 30</div>
@@ -400,6 +417,11 @@
             gameStarted = false; // إعادة تعيين علم بدء اللعبة
         }
 
+document.querySelector('.arrow').addEventListener('click', () => {
+    window.location.href = 'index.html';
+});
+
+
         function createGrid() {
             gridElement.innerHTML = '';
             gridElement.className = `grid grid-${gridSize}x${gridSize}`;
@@ -412,7 +434,6 @@
                 gridElement.appendChild(card);
             });
         }
-
 
 function flipCard() {
     if (lockBoard) return; 
@@ -603,7 +624,6 @@ function resetGame() {
     }
     resetGame();
 });
-
         startGame();
     </script>
 </body>
