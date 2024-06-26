@@ -105,7 +105,22 @@
             right: 10px;
             cursor: pointer;
             font-size: 1.2em;
-        }    </style>
+        }
+
+        #settings-dialog .dialog-buttons button {
+            width: 45%;
+        }
+
+        #settings-dialog .dialog-buttons .yes {
+            background-color: green;
+            color: white;
+        }
+
+        #settings-dialog .dialog-buttons .no {
+            background-color: red;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -113,8 +128,20 @@
         <h2>تطوير: ليث قرقز</h2>
         <div class="menu">
             <button onclick="startGame()">بدء</button>
-            <button onclick="showDialog('store')">الاعدادات</button>
+            <button onclick="showDialog('settings')">الإعدادات</button>
             <button onclick="showDialog('exit')">خروج</button>
+        </div>
+    </div>
+
+    <div id="settings-dialog" class="dialog">
+        <span class="close" onclick="hideDialog('settings')">&times;</span>
+        <h2>الإعدادات</h2>
+        <p>الموسيقى</p>
+        <p>حرام انا متبري من ذنب الي بشغلها</p>
+        <p>(بتشتغل بلقائمة الرئيسيه بس)</p>
+        <div class="dialog-buttons">
+            <button class="yes" onclick="toggleMusic(true)">تشغيل</button>
+            <button class="no" onclick="toggleMusic(false)">إيقاف</button>
         </div>
     </div>
 
@@ -123,16 +150,22 @@
         <h2>خروج</h2>
         <p>هل انت متأكد؟</p>
         <div class="dialog-buttons">
-            <button class="yes" onclick="confirmExit()">نعم</button>
+            <button class="yes" onclick="redirectExit()">نعم</button>
             <button class="no" onclick="hideDialog('exit')">لا</button>
         </div>
     </div>
 
-    <script>
-        let balance = parseInt(localStorage.getItem('balance')) || 0;
-        let purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || [];
+    <audio id="background-music" loop>
+        <source src="musicmenu.mp3" type="audio/mpeg">
+    </audio>
 
-        document.getElementById('balance').textContent = balance + "$";
+    <script>
+        let backgroundMusic = document.getElementById('background-music');
+        backgroundMusic.volume = 0.2;  // ضبط مستوى الصوت هنا
+
+        window.onload = function() {
+            backgroundMusic.play();
+        };
 
         function startGame() {
             window.location.href = 'game.html';
@@ -146,49 +179,16 @@
             document.getElementById(dialogId + '-dialog').style.display = 'none';
         }
 
-        function confirmExit() {
-            window.close(); // سيغلق النافذة إذا كان مسموحًا من المتصفح
+        function redirectExit() {
+            window.location.href = 'https://www.google.com';
         }
 
-        function buyItem(itemNumber) {
-            let itemPrice = 50;
-            if (balance >= itemPrice) {
-                balance -= itemPrice;
-                purchasedItems.push(itemNumber);
-                localStorage.setItem('balance', balance);
-                localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
-                alert("تم شراء خلفية " + itemNumber);
-                document.getElementById('balance').textContent = balance + "$";
-                updateStore();
+        function toggleMusic(play) {
+            if (play) {
+                backgroundMusic.play();
             } else {
-                alert("لا يوجد لديك رصيد كافٍ");
+                backgroundMusic.pause();
             }
-        }
-
-        function updateStore() {
-            purchasedItems.forEach(itemNumber => {
-                let item = document.getElementById('item-' + itemNumber);
-                let button = item.querySelector('button');
-                button.textContent = 'تجهيز';
-                button.onclick = function() {
-                    setGameBackground(itemNumber);
-                };
-                item.querySelector('.price').style.display = 'none';
-            });
-        }
-
-        function setGameBackground(itemNumber) {
-            localStorage.setItem('gameBackground', 'الخلفية' + itemNumber + '.png');
-            alert("تم تجهيز الخلفية " + itemNumber);
-        }
-
-        updateStore();
-
-        // للحصول على الرصيد عبر اللعب، يمكن تحديث هذه الدالة وفقًا لذلك
-        function earnMoney(amount) {
-            balance += amount;
-            localStorage.setItem('balance', balance);
-            document.getElementById('balance').textContent = balance + "$";
         }
     </script>
 </body>
