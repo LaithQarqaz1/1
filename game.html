@@ -98,10 +98,11 @@
             transform: rotateY(180deg);
         }
 
-        .card.matched {
-            color: green;
-            background-color: green;
-        }
+.card.matched {
+    color: green;
+    background-color: green;
+    pointer-events: none; /* تعطيل أحداث النقر */
+}
 
         .popup {
             display: none;
@@ -412,8 +413,11 @@
             });
         }
 
+
 function flipCard() {
+    if (lockBoard) return; 
     if (lockBoard || this === firstCard) return;
+    if (this.classList.contains('matched')) return;
 
     if (!gameStarted) {
         startTimer();
@@ -496,6 +500,8 @@ function disableCards() {
             }
         }
 
+
+
         function resetStats() {
             matches = 0;
             moves = 0;
@@ -509,6 +515,8 @@ function disableCards() {
             timerElement.textContent = `الوقت: ${timeLeft === Infinity ? 'لا نهائي' : timeLeft + ' ثانية'}`;
         }
 
+
+
         function startTimer() {
             clearInterval(timer);
             timer = setInterval(() => {
@@ -521,6 +529,8 @@ function disableCards() {
                 }
             }, 1000);
         }
+
+
 
 function getSettingsByDifficulty(difficulty, gridSize) {
     const settings = {
@@ -553,16 +563,24 @@ function showWinPopup() {
     popupWin.classList.add('active');
 }
 
-        function showLosePopup(reason) {
-            loseReason.textContent = reason;
-            popupLose.classList.add('active');
-        }
 
-        function resetGame() {
-            popupWin.classList.remove('active');
-            popupLose.classList.remove('active');
-            startGame();
-        }
+
+
+function showLosePopup(reason) {
+    loseReason.textContent = reason;
+    popupLose.classList.add('active');
+    lockBoard = true;
+}
+
+
+
+
+function resetGame() {
+    popupWin.classList.remove('active');
+    popupLose.classList.remove('active');
+    startGame();
+    lockBoard = false; // إعادة تفعيل تقليب البطاقات بعد إعادة بدء اللعبة
+}
 
         restartButton.addEventListener('click', resetGame);
 
