@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8">
   <title>لعبة الذاكرة</title>
   <link rel="stylesheet" href="./style.css">
+
   <style>
+    /* منع تحديد النص */
     body {
-      -webkit-user-select: none; /* Safari */
-      -ms-user-select: none; /* IE 10 and IE 11 */
+      -webkit-user-select: none; /* Chrome/Safari */
+      -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* IE10+ */
       user-select: none; /* Standard syntax */
     }
   </style>
-  <script>
-    document.addEventListener('contextmenu', function(event) {
-      event.preventDefault();
-    });
-  </script>
+
 </head>
 <body>
 <!-- partial:index.partial.html -->
@@ -26,35 +25,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لعبة الذاكرة</title>
-</head>
-<body>
+
     <div class="game-container">
-        <h1>لعبة الذاكرة <span class="arrow">🔙</span></h1>
+<h1>لعبة الذاكرة <span class="arrow">🔙</span></h1>
         <div>تطوير: ليث قرقز</div>
-        <div id="level-info">***المستوى: 1***</div>
+    <div id="level-info">***المستوى: 1***</div>
         <div class="info">
             <div id="moves">الحركات: 30</div>
             <div id="timer">الوقت: 45 ثانية</div>
         <div>ㅤ</div>
+
+
         <div class="grid grid-6x6" id="grid"></div>
         <div id="message"></div>
         <button id="restart-btn">إعادة بدء المستوى</button>
         <button id="toggle-theme-btn">تبديل الشكل</button>
     </div>
+
     <div class="popup" id="popup-win">
         <div class="popup-message">لقد فزت</div>
         <button onclick="nextLevel()">المستوى التالي</button>
     </div>
+
     <div class="popup" id="popup-lose">
         <div class="popup-lost-message">لقد خسرت</div>
         <div class="popup-lost-reason" id="lose-reason"></div>
-        <button onclick="resetCurrentLevel()">إعادة بدء المستوى</button>
+        <button onclick="resetCurrentLevel()">إعادة المحاولة</button>
     </div>
-    <audio id="flip-sound" src="cardsounds.mp3"></audio>
-    <audio id="match-sound" src="CorrectAnswerSoundEffect.mp3"></audio>
-    <!-- partial -->
-    <script src="./script.js"></script>
-</body>
-</html>
+
+<audio id="flip-sound" src="cardsounds.mp3"></audio>
+<audio id="match-sound" src="CorrectAnswerSoundEffect.mp3"></audio>
+<!-- partial -->
+
+
+
+  <script  src="./script.js"></script>
+
+  <script>
+    // منع النقر بالزر الأيمن للماوس
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  </script>
+
 </body>
 </html>
