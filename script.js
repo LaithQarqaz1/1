@@ -60,11 +60,13 @@ function shuffle(array) {
 }
 
 function startGame() {
+    currentLevelIndex = parseInt(localStorage.getItem('currentLevelIndex')) || 0;  // استرجاع المستوى الحالي من localStorage
+
     if (currentLevelIndex >= levels.length) {
         alert('لقد أكملت جميع المستويات! يمكنك إعادة اللعبة.');
         currentLevelIndex = 0;
     }
-    
+
     let level = levels[currentLevelIndex];
     gridSize = level.gridSize;
     difficulty = level.difficulty;
@@ -77,7 +79,22 @@ function startGame() {
     createGrid();
     resetStats();
     gameStarted = false;
+
+    // تحديث معلومات المستوى
+    updateLevelInfo();
 }
+
+
+
+function updateLevelInfo() {
+    let settings = getSettingsByDifficulty(difficulty, gridSize);
+    document.getElementById('level-info').innerText = `***المستوى: ${currentLevelIndex + 1}***`;
+    movesElement.textContent = `الحركات: ${settings.moves}`;
+    timerElement.textContent = `الوقت: ${settings.time === Infinity ? 'لا نهائي' : settings.time + ' ثانية'}`;
+}
+
+document.addEventListener('DOMContentLoaded', startGame);
+
 
 document.querySelector('.arrow').addEventListener('click', () => {
     window.location.href = 'index.html';
@@ -107,6 +124,7 @@ function flipCard() {
     this.classList.add('flipped');
     this.textContent = this.dataset.emoji;
 
+    // تشغيل صوت قلب البطاقة لكل بطاقة تُقلب
     document.getElementById('flip-sound').play();
 
     if (!firstCard) {
@@ -245,26 +263,21 @@ function showWinPopup() {
 
 function nextLevel() {
     popupWin.classList.remove('active');
-currentLevelIndex++;
-updateLevelInfo();
-
+    currentLevelIndex++;
+    
+    // حفظ المستوى الحالي في localStorage
+    localStorage.setItem('currentLevelIndex', currentLevelIndex);
     
     // تحقق إذا كانت جميع المستويات قد انتهت
     if (currentLevelIndex >= levels.length) {
         alert('لقد أكملت جميع المستويات! يمكنك إعادة اللعبة.');
         currentLevelIndex = 0; // إعادة تعيين للمستوى الأول
+        localStorage.setItem('currentLevelIndex', currentLevelIndex);
     }
-    
+
     startGame();
     lockBoard = false;
 }
-
-function updateLevelInfo() {
-    const levelInfoElement = document.getElementById('level-info');
-    levelInfoElement.textContent = `(المستوى: ${currentLevelIndex + 1})`;
-}
-
-
 
 function showLosePopup(reason) {
     loseReason.textContent = reason;
