@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تركيب الصور</title>
+    <title>لعبة الذاكرة</title>
     <style>
         body {
             margin: 0;
@@ -12,6 +12,9 @@
             direction: rtl;
             background: url('مقدمه.png') no-repeat center center fixed;
             background-size: cover;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
         }
 
         .container {
@@ -183,6 +186,10 @@
         function startGame() {
             window.location.href = 'game.html';
         }
+
+  document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+  });
 
         function showDialog(dialogId) {
             document.getElementById(dialogId + '-dialog').style.display = 'block';
