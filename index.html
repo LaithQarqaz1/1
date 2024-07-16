@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الذاكرة</title>
+    <title>تركيب الصور</title>
     <style>
         body {
             margin: 0;
@@ -27,11 +27,27 @@
         h1 {
             font-size: 4em;
             margin: 0.5em 0;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8), 
+                0 0 20px rgba(255, 255, 255, 0.8), 
+                0 0 30px rgba(255, 255, 255, 0.8),
+                -2px -2px 0 #000, 
+                2px -2px 0 #000, 
+                -2px 2px 0 #000, 
+                2px 2px 0 #000;
         }
 
         h2 {
             font-size: 1.5em;
             margin: 0.5em 0;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8), 
+                0 0 20px rgba(255, 255, 255, 0.8), 
+                0 0 30px rgba(255, 255, 255, 0.8),
+                -1px -1px 0 #000, 
+                1px -1px 0 #000, 
+                -1px 1px 0 #000, 
+                1px 1px 0 #000;
         }
 
         .menu {
@@ -136,12 +152,9 @@
     <div id="settings-dialog" class="dialog">
         <span class="close" onclick="hideDialog('settings')">&times;</span>
         <h2>الإعدادات</h2>
-        <p>الموسيقى</p>
-        <p>حرام انا متبري من ذنب الي بشغلها</p>
-        <p>(بتشتغل بلقائمة الرئيسيه بس)</p>
+        <p>صفحة الفيسبوك</p>
         <div class="dialog-buttons">
-            <button class="yes" onclick="toggleMusic(true)">تشغيل</button>
-            <button class="no" onclick="toggleMusic(false)">إيقاف</button>
+            <button class="yes" onclick="downloadGame()">هنا</button>
         </div>
     </div>
 
@@ -150,7 +163,7 @@
         <h2>خروج</h2>
         <p>هل انت متأكد؟</p>
         <div class="dialog-buttons">
-            <button class="yes" onclick="redirectExit()">نعم</button>
+            <button class="yes" onclick="simulateAltF4()">نعم</button>
             <button class="no" onclick="hideDialog('exit')">لا</button>
         </div>
     </div>
@@ -179,16 +192,16 @@
             document.getElementById(dialogId + '-dialog').style.display = 'none';
         }
 
-        function redirectExit() {
-            window.location.href = 'https://www.google.com';
+        function simulateAltF4() {
+            const evt = new KeyboardEvent('keydown', {
+                key: 'F4',
+                altKey: true
+            });
+            document.dispatchEvent(evt);
         }
 
-        function toggleMusic(play) {
-            if (play) {
-                backgroundMusic.play();
-            } else {
-                backgroundMusic.pause();
-            }
+        function downloadGame() {
+            window.location.href = 'https://facebook.com/LaithQarqaz?locale=ar_AR';
         }
     </script>
 </body>
