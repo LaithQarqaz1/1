@@ -10,22 +10,41 @@ const allEmojis = [
 ];
 
 const levels = [
+    { gridSize: 3, difficulty: 'لا نهائي' },
     { gridSize: 4, difficulty: 'لا نهائي' },
-    { gridSize: 4, difficulty: 'سهل' },
-    { gridSize: 4, difficulty: 'متوسط' },
-    { gridSize: 4, difficulty: 'صعب' },
-    { gridSize: 4, difficulty: 'صعب2' },
+    { gridSize: 5, difficulty: 'لا نهائي' },
     { gridSize: 6, difficulty: 'لا نهائي' },
-    { gridSize: 6, difficulty: 'سهل' },
-    { gridSize: 6, difficulty: 'متوسط' },
-    { gridSize: 6, difficulty: 'صعب' },
-    { gridSize: 6, difficulty: 'صعب2' },
+    { gridSize: 7, difficulty: 'لا نهائي' },
     { gridSize: 8, difficulty: 'لا نهائي' },
+
+    { gridSize: 3, difficulty: 'سهل' },
+    { gridSize: 4, difficulty: 'سهل' },
+    { gridSize: 5, difficulty: 'سهل' },
+    { gridSize: 6, difficulty: 'سهل' },
+    { gridSize: 7, difficulty: 'سهل' },
     { gridSize: 8, difficulty: 'سهل' },
+
+    { gridSize: 3, difficulty: 'متوسط' },
+    { gridSize: 4, difficulty: 'متوسط' },
+    { gridSize: 5, difficulty: 'متوسط' },
+    { gridSize: 6, difficulty: 'متوسط' },
+    { gridSize: 7, difficulty: 'متوسط' },
     { gridSize: 8, difficulty: 'متوسط' },
+
+    { gridSize: 3, difficulty: 'صعب' },
+    { gridSize: 4, difficulty: 'صعب' },
+    { gridSize: 5, difficulty: 'صعب' },
+    { gridSize: 6, difficulty: 'صعب' },
+    { gridSize: 7, difficulty: 'صعب' },
     { gridSize: 8, difficulty: 'صعب' },
+
+    { gridSize: 3, difficulty: 'صعب2' },
+    { gridSize: 4, difficulty: 'صعب2' },
+    { gridSize: 5, difficulty: 'صعب2' },
+    { gridSize: 6, difficulty: 'صعب2' },
+    { gridSize: 7, difficulty: 'صعب2' },
     { gridSize: 8, difficulty: 'صعب2' },
-    // يمكنك إضافة مستويات جديدة هنا
+
 ];
 
 let currentLevelIndex = 0;
@@ -73,6 +92,13 @@ function startGame() {
 
     emojis = allEmojis.slice();
     shuffle(emojis);
+
+    // إذا كان عدد البطاقات فرديًا، قم بإزالة البطاقة الموجودة في المنتصف
+    if ((gridSize * gridSize) % 2 !== 0) {
+        let centerIndex = Math.floor((gridSize * gridSize) / 2);
+        emojis.splice(centerIndex, 1);
+    }
+
     emojis = emojis.slice(0, (gridSize * gridSize) / 2);
     emojis = [...emojis, ...emojis];
     shuffle(emojis);
@@ -83,8 +109,6 @@ function startGame() {
     // تحديث معلومات المستوى
     updateLevelInfo();
 }
-
-
 
 function updateLevelInfo() {
     let settings = getSettingsByDifficulty(difficulty, gridSize);
@@ -224,6 +248,15 @@ function startTimer() {
 
 function getSettingsByDifficulty(difficulty, gridSize) {
     const settings = {
+
+        "3": {
+            "سهل": { time: 40, moves: 40 },
+            "متوسط": { time: 35, moves: 30 },
+            "صعب": { time: 30, moves: 20 },
+            "صعب2": { time: 25, moves: 15 },
+            "لا نهائي": { time: Infinity, moves: Infinity }
+        },
+
         "4": {
             "سهل": { time: 65, moves: 50 },
             "متوسط": { time: 45, moves: 30 },
@@ -231,6 +264,15 @@ function getSettingsByDifficulty(difficulty, gridSize) {
             "صعب2": { time: 35, moves: 20 },
             "لا نهائي": { time: Infinity, moves: Infinity }
         },
+
+        "5": {
+            "سهل": { time: 140, moves: 90 },
+            "متوسط": { time: 100, moves: 65 },
+            "صعب": { time: 70, moves: 45 },
+            "صعب2": { time: 60, moves: 35 },
+            "لا نهائي": { time: Infinity, moves: Infinity }
+        },
+
         "6": {
             "سهل": { time: 165, moves: 100 },
             "متوسط": { time: 120, moves: 75 },
@@ -238,6 +280,15 @@ function getSettingsByDifficulty(difficulty, gridSize) {
             "صعب2": { time: 80, moves: 45 },
             "لا نهائي": { time: Infinity, moves: Infinity }
         },
+
+        "7": {
+            "سهل": { time: 180, moves: 125 },
+            "متوسط": { time: 130, moves: 100 },
+            "صعب": { time: 100, moves: 85 },
+            "صعب2": { time: 80, moves: 75 },
+            "لا نهائي": { time: Infinity, moves: Infinity }
+        },
+
         "8": {
             "سهل": { time: 220, moves: 150 },
             "متوسط": { time: 180, moves: 125 },
@@ -313,7 +364,7 @@ function toggleTheme() {
     document.body.dataset.theme = newTheme;
 }
 
-document.body.dataset.theme = 'dark'; // تعيين الثيم الافتراضي
+document.body.dataset.theme = 'background2'; // تعيين الثيم الافتراضي
 
 
 restartButton.addEventListener('click', resetCurrentLevel);
