@@ -139,14 +139,25 @@ body[data-theme="background2"] .card {
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
+        .grid-3x3 {
+            grid-template-columns: repeat(3, 60px); /* تعديل حجم البطاقات */
+        }
+
         .grid-4x4 {
             grid-template-columns: repeat(4, 60px); /* تعديل حجم البطاقات */
+        }
+
+        .grid-5x5 {
+            grid-template-columns: repeat(5, 60px); /* تعديل حجم البطاقات */
         }
 
         .grid-6x6 {
             grid-template-columns: repeat(6, 60px); /* تعديل حجم البطاقات */
         }
 
+        .grid-7x7 {
+            grid-template-columns: repeat(7, 60px); /* تعديل حجم البطاقات */
+        }
 
         .grid-8x8 {
             grid-template-columns: repeat(8, 60px); /* تعديل حجم البطاقات */
@@ -311,14 +322,26 @@ body[data-theme="background2"] .card {
                 padding: 5px;
             }
 
+            .grid-3x3 {
+                grid-template-columns: repeat(3, 40px); /* تعديل حجم البطاقات */
+            }
+
+
             .grid-4x4 {
                 grid-template-columns: repeat(4, 40px); /* تعديل حجم البطاقات */
+            }
+
+            .grid-5x5 {
+                grid-template-columns: repeat(5, 40px); /* تعديل حجم البطاقات */
             }
 
             .grid-6x6 {
                 grid-template-columns: repeat(6, 40px); /* تعديل حجم البطاقات */
             }
 
+            .grid-7x7 {
+                grid-template-columns: repeat(7, 40px); /* تعديل حجم البطاقات */
+            }
 
             .grid-8x8 {
                 grid-template-columns: repeat(8, 40px); /* تعديل حجم البطاقات */
