@@ -13,9 +13,9 @@
             direction: rtl;
             background: url('مقدمه.png') no-repeat center center fixed;
             background-size: cover;
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10 and IE 11 */
-    user-select: none; /* Standard syntax */
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
         }
 
         .container {
@@ -156,6 +156,11 @@
     <div id="settings-dialog" class="dialog">
         <span class="close" onclick="hideDialog('settings')">&times;</span>
         <h2>الإعدادات</h2>
+        <p>الصوت</p>
+        <div class="dialog-buttons">
+            <button class="yes" onclick="playMusic()">تشغيل</button>
+            <button class="no" onclick="pauseMusic()">إيقاف</button>
+        </div>
         <p>صفحة الفيسبوك</p>
         <div class="dialog-buttons">
             <button class="yes" onclick="downloadGame()">هنا</button>
@@ -167,7 +172,7 @@
         <h2>خروج</h2>
         <p>هل انت متأكد؟</p>
         <div class="dialog-buttons">
-            <button class="yes" onclick="simulateAltF4()">نعم</button>
+            <button class="yes" onclick="closeWindow()">نعم</button>
             <button class="no" onclick="hideDialog('exit')">لا</button>
         </div>
     </div>
@@ -188,9 +193,9 @@
             window.location.href = 'game.html';
         }
 
-  document.addEventListener('contextmenu', function(event) {
-    event.preventDefault();
-  });
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
 
         function showDialog(dialogId) {
             document.getElementById(dialogId + '-dialog').style.display = 'block';
@@ -200,16 +205,21 @@
             document.getElementById(dialogId + '-dialog').style.display = 'none';
         }
 
-        function simulateAltF4() {
-            const evt = new KeyboardEvent('keydown', {
-                key: 'F4',
-                altKey: true
-            });
-            document.dispatchEvent(evt);
+        function closeWindow() {
+            window.open('', '_self'); // فتح نافذة جديدة
+            window.close(); // إغلاق النافذة الحالية
         }
 
         function downloadGame() {
             window.location.href = 'https://facebook.com/LaithQarqaz?locale=ar_AR';
+        }
+
+        function playMusic() {
+            backgroundMusic.play();
+        }
+
+        function pauseMusic() {
+            backgroundMusic.pause();
         }
     </script>
 </body>
